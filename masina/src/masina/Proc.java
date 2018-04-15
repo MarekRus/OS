@@ -2,6 +2,7 @@ package masina;
 
 import java.util.ArrayList;
 
+
 public class Proc {
 
 	
@@ -43,17 +44,16 @@ public class Proc {
 	
 	static final int IC = 0;
 	static final int R = 1;
-	static final int C = 2;
-	static final int PTR = 3;
-	static final int MODE = 4;
-	static final int SF = 5;
-	static final int SP = 6;
-	static final int CS = 7;
-	static final int DS = 8;
-	static final int SS = 9;
-	static final int PI = 10;
-	static final int SI = 11;
-	static final int TI = 12;
+	static final int PTR = 2;
+	static final int MODE = 3;
+	static final int SF = 4;
+	static final int SP = 5;
+	static final int CS = 6;
+	static final int DS = 7;
+	static final int SS = 8;
+	static final int PI = 9;
+	static final int SI = 10;
+	static final int TI = 11;
 	
 	
 	public static void printMemBlock(String[] memory) {
@@ -66,11 +66,29 @@ public class Proc {
 		for(int i = 0; i < 32; i++) {
 			
 			for(int g = 0; g < 8; g++) {
-				System.out.print(memory[currentBlock*256 + i*8 + g]);
+				System.out.print(memory[currentBlock*256 + i*8 + g] + " ");
 			}
 			System.out.println();
 			
 		}
+		
+	}
+	
+	
+	public static void printInfo(String[] memory) {
+		
+		int ic = convHexStrToInt(memory[IC]);
+		int cs = convHexStrToInt(memory[CS]);
+		
+		System.out.println("------------------------------------------------");
+		
+		System.out.print("Dabartine komanda: ");
+		System.out.print(memory[cs*256 + ic]);
+		System.out.print(" Sekanti komanda: ");
+		System.out.println(memory[cs*256 + ic + 1]);
+		
+		System.out.println("------------------------------------------------");
+		
 		
 	}
 	

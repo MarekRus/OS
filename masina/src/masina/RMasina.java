@@ -2,8 +2,13 @@ package masina;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Scanner;
 
 public class RMasina {
+	
+	public static int convHexStrToInt(String word) {
+		return (int)Long.parseLong(word, 16);
+	}
 	
 	public static String convIntToHexStr(int x, int length) {
 		String word = Integer.toHexString(x);
@@ -48,10 +53,44 @@ public class RMasina {
 		
 		
 		Proc proc = new Proc();
-		
-		
-		
 		VMasina vm = new VMasina(ptr, mem, proc);
+		
+		String[] memory = new String[65536];
+		
+		int icTemp = 0;
+		Scanner s = new Scanner(System.in);
+		
+		
+		
+		
+		while(true) {
+			
+			String command = s.nextLine();
+			
+			
+			if( (command.length() > 3) && ( command.substring(0, 4).equals("STEP") ) ) {
+				
+				proc.printInfo(memory);
+				
+				memory = proc.step(memory);
+				
+			} else if( (command.length() > 2) && ( command.substring(0, 3).equals("RUN") ) ) {
+				
+				memory = proc.run(memory);
+				
+			} else if( (command.length() > 5) && ( command.substring(0, 6).equals("BPRINT") ) ) {
+				
+				proc.printMemBlock(memory);
+				
+			} else {
+				
+				memory = vm.komanda(proc, icTemp, command);
+				icTemp++;
+				
+			}
+			
+			
+		}
 		
 		
 		

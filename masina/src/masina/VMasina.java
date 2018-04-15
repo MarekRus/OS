@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 public class VMasina {
 
-	private static  String[] memory;
+	public static  String[] memory;
 	private int ptr;
 	Memory mem;
 	
@@ -35,8 +35,7 @@ public class VMasina {
 		
 		
 		memory[proc.IC] = "00000000";
-		memory[proc.R] = "00000000";
-		memory[proc.C] = "00000000";	
+		memory[proc.R] = "00000000";	
 		memory[proc.PTR] = convIntToHexStr(ptr, 8);
 		memory[proc.MODE] = "00000000";
 		memory[proc.SF] = "00000000";
@@ -54,129 +53,102 @@ public class VMasina {
 			memory[256 + i] = mem.getWord(ptr*256 + i); 
 		}		
 		
-		komanda(proc);
-		
 	}
 	
 	
-	public static void komanda(Proc proc) {
+	public static String[] komanda(Proc proc, int icTemp, String command) {
 		
-		int icTemp = 0;
 		int CSint = convHexStrToInt(memory[proc.CS]);
-		Scanner s = new Scanner(System.in);
 		
-		while(true) {
+		if( (command.length() > 2) && ( command.substring(0, 3).equals("ADD") ) ) {
 			
-			String command = s.nextLine();
+			memory[CSint*256 + icTemp] = "ADD00000";
+			icTemp++;
 			
-			if( (command.length() > 2) && ( command.substring(0, 3).equals("ADD") ) ) {
-				
-				memory[CSint*256 + icTemp] = "ADD00000";
-				icTemp++;
-				
-			} else if( (command.length() > 2) && ( command.substring(0, 3).equals("SUB") ) ) {
-				
-				memory[CSint*256 + icTemp] = "SUB00000";
-				icTemp++;
-				
-			} else if( (command.length() > 2) && ( command.substring(0, 3).equals("MUL") ) ) {
-				
-				memory[CSint*256 + icTemp] = "MUL00000";
-				icTemp++;
-				
-			} else if( (command.length() > 2) && ( command.substring(0, 3).equals("DIV") ) ) {
-				
-				memory[CSint*256 + icTemp] = "DIV00000";
-				icTemp++;
-				
-			} else if( (command.length() > 2) && ( command.substring(0, 2).equals("KR") ) ) {
-				
-				memory[CSint*256 + icTemp] = command.substring(0, 8);
-				icTemp++;
-				
-			} else if( (command.length() > 2) && ( command.substring(0, 2).equals("SR") ) ) {
-				
-				memory[CSint*256 + icTemp] = command.substring(0, 8);
-				icTemp++;
-				
-			} else if( (command.length() > 3) && ( command.substring(0, 4).equals("PUSH") ) ) {
-				
-				memory[CSint*256 + icTemp] = "PUSH0000";
-				icTemp++;
-				
-			} else if( (command.length() > 2) && ( command.substring(0, 3).equals("POP") ) ) {
-				
-				memory[CSint*256 + icTemp] = "POP00000";
-				icTemp++;
-				
-			} else if( (command.length() > 2) && ( command.substring(0, 3).equals("CMP") ) ) {
-				
-				memory[CSint*256 + icTemp] = "CMP00000";
-				icTemp++;
-				
-			} else if( (command.length() > 1) && ( command.substring(0, 2).equals("PD") ) ) {
-				
-				memory[CSint*256 + icTemp] = "PD000000";
-				icTemp++;
-				
-			} else if( (command.length() > 2) && ( command.substring(0, 2).equals("RD") ) ) {
-				
-				memory[CSint*256 + icTemp] = command.substring(0, 8);
-				icTemp++;
-				
-			} else if( (command.length() > 2) && ( command.substring(0, 2).equals("JM") ) ) {
-				
-				memory[CSint*256 + icTemp] = command.substring(0, 8);
-				icTemp++;
-				
-			} else if( (command.length() > 2) && ( command.substring(0, 2).equals("JZ") ) ) {
-				
-				memory[CSint*256 + icTemp] = command.substring(0, 8);
-				icTemp++;
-				
-			} else if( (command.length() > 2) && ( command.substring(0, 2).equals("JN") ) ) {
-				
-				memory[CSint*256 + icTemp] = command.substring(0, 8);
-				icTemp++;
-				
-			} else if( (command.length() > 2) && ( command.substring(0, 2).equals("JB") ) ) {
-				
-				memory[CSint*256 + icTemp] = command.substring(0, 8);
-				icTemp++;
-				
-			} else if( (command.length() > 2) && ( command.substring(0, 2).equals("JA") ) ) {
-				
-				memory[CSint*256 + icTemp] = command.substring(0, 8);
-				icTemp++;
-				
-			} else if( (command.length() > 3) && ( command.substring(0, 4).equals("HALT") ) ) {
-				
-				memory[CSint*256 + icTemp] = "HALT0000";
-				icTemp++;
-				
-			} else if( (command.length() > 3) && ( command.substring(0, 4).equals("PRIN") ) ) {
-				
-				for(int i = 0; i < 256; i++) {
-					System.out.println(memory[CSint*256 + i]);
-				}
-				
-			} else if( (command.length() > 3) && ( command.substring(0, 4).equals("STEP") ) ) {
-				
-				memory = proc.step(memory);
-				
-			} else if( (command.length() > 2) && ( command.substring(0, 3).equals("RUN") ) ) {
-				
-				memory = proc.run(memory);
-				
-			} else if( (command.length() > 5) && ( command.substring(0, 6).equals("BPRINT") ) ) {
-				
-				proc.printMemBlock(memory);
-				
-			}
-		}
+		} else if( (command.length() > 2) && ( command.substring(0, 3).equals("SUB") ) ) {
+			
+			memory[CSint*256 + icTemp] = "SUB00000";
+			icTemp++;
+			
+		} else if( (command.length() > 2) && ( command.substring(0, 3).equals("MUL") ) ) {
+			
+			memory[CSint*256 + icTemp] = "MUL00000";
+			icTemp++;
+			
+		} else if( (command.length() > 2) && ( command.substring(0, 3).equals("DIV") ) ) {
+			
+			memory[CSint*256 + icTemp] = "DIV00000";
+			icTemp++;
+			
+		} else if( (command.length() > 2) && ( command.substring(0, 2).equals("KR") ) ) {
+			
+			memory[CSint*256 + icTemp] = command.substring(0, 8);
+			icTemp++;
+			
+		} else if( (command.length() > 2) && ( command.substring(0, 2).equals("SR") ) ) {
+			
+			memory[CSint*256 + icTemp] = command.substring(0, 8);
+			icTemp++;
+			
+		} else if( (command.length() > 3) && ( command.substring(0, 4).equals("PUSH") ) ) {
+			
+			memory[CSint*256 + icTemp] = "PUSH0000";
+			icTemp++;
+			
+		} else if( (command.length() > 2) && ( command.substring(0, 3).equals("POP") ) ) {
+			
+			memory[CSint*256 + icTemp] = "POP00000";
+			icTemp++;
+			
+		} else if( (command.length() > 2) && ( command.substring(0, 3).equals("CMP") ) ) {
+			
+			memory[CSint*256 + icTemp] = "CMP00000";
+			icTemp++;
+			
+		} else if( (command.length() > 1) && ( command.substring(0, 2).equals("PD") ) ) {
+			
+			memory[CSint*256 + icTemp] = "PD000000";
+			icTemp++;
+			
+		} else if( (command.length() > 2) && ( command.substring(0, 2).equals("RD") ) ) {
+			
+			memory[CSint*256 + icTemp] = command.substring(0, 8);
+			icTemp++;
+			
+		} else if( (command.length() > 2) && ( command.substring(0, 2).equals("JM") ) ) {
+			
+			memory[CSint*256 + icTemp] = command.substring(0, 8);
+			icTemp++;
+			
+		} else if( (command.length() > 2) && ( command.substring(0, 2).equals("JZ") ) ) {
+			
+			memory[CSint*256 + icTemp] = command.substring(0, 8);
+			icTemp++;
+			
+		} else if( (command.length() > 2) && ( command.substring(0, 2).equals("JN") ) ) {
+			
+			memory[CSint*256 + icTemp] = command.substring(0, 8);
+			icTemp++;
+			
+		} else if( (command.length() > 2) && ( command.substring(0, 2).equals("JB") ) ) {
+			
+			memory[CSint*256 + icTemp] = command.substring(0, 8);
+			icTemp++;
+			
+		} else if( (command.length() > 2) && ( command.substring(0, 2).equals("JA") ) ) {
+			
+			memory[CSint*256 + icTemp] = command.substring(0, 8);
+			icTemp++;
+			
+		} else if( (command.length() > 3) && ( command.substring(0, 4).equals("HALT") ) ) {
+			
+			memory[CSint*256 + icTemp] = "HALT0000";
+			icTemp++;
+			
+		} 
 		
 		
-		
+		return memory;
 		
 		
 	}
