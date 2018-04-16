@@ -56,10 +56,10 @@ public class Proc {
 	static final int TI = 11;
 	
 	
-	public static void printMemBlock(String[] memory) {
+	public static void printMemBlock(String[] memory, String[] supervisorMem) {
 		
-		int ic = convHexStrToInt(memory[IC]);
-		int cs = convHexStrToInt(memory[CS]);
+		int ic = convHexStrToInt(supervisorMem[IC]);
+		int cs = convHexStrToInt(supervisorMem[CS]);
 		
 		int currentBlock = (ic / 255) + cs;	
 		
@@ -75,10 +75,10 @@ public class Proc {
 	}
 	
 	
-	public static void printInfo(String[] memory) {
+	public static void printInfo(String[] memory, String[] supervisorMem) {
 		
-		int ic = convHexStrToInt(memory[IC]);
-		int cs = convHexStrToInt(memory[CS]);
+		int ic = convHexStrToInt(supervisorMem[IC]);
+		int cs = convHexStrToInt(supervisorMem[CS]);
 		
 		System.out.println("------------------------------------------------");
 		
@@ -93,25 +93,21 @@ public class Proc {
 	}
 	
 	
-	public static String[] run(String[] memory) {
+	public static void run(String[] memory, String[] supervisorMem) {
 		
-		int ic = convHexStrToInt(memory[IC]);
-		int cs = convHexStrToInt(memory[CS]);
+		int ic = convHexStrToInt(supervisorMem[IC]);
+		int cs = convHexStrToInt(supervisorMem[CS]);
 		
 		String currentCommand = memory[cs*256 + ic];
 		
 		while(!currentCommand.equals("HALT0000")){
-			memory = step(memory);
-			ic = convHexStrToInt(memory[IC]);
+			step(memory, supervisorMem);
+			ic = convHexStrToInt(supervisorMem[IC]);
 			currentCommand = memory[cs*256 + ic];
-			
-			//System.out.println("Current Command: " + currentCommand);
 		}
 		
-		ic = convHexStrToInt(memory[IC]) + 1;
-		memory[IC] = convIntToHexStr(ic,8);
-		
-		return memory;
+		ic = convHexStrToInt(supervisorMem[IC]) + 1;
+		supervisorMem[IC] = convIntToHexStr(ic,8);
 		
 	}
 	
@@ -119,19 +115,16 @@ public class Proc {
 	
 	
 	
-	public static String[] step(String[] memory) {
+	public static void step(String[] memory, String[] supervisorMem) {
 		
-		int ic = convHexStrToInt(memory[IC]);
-		int cs = convHexStrToInt(memory[CS]);
-		int ds = convHexStrToInt(memory[DS]);
-		int ss = convHexStrToInt(memory[SS]);
-		int sp = convHexStrToInt(memory[SP]);
-		int r = convHexStrToInt(memory[R]);
+		int ic = convHexStrToInt(supervisorMem[IC]);
+		int cs = convHexStrToInt(supervisorMem[CS]);
+		int ds = convHexStrToInt(supervisorMem[DS]);
+		int ss = convHexStrToInt(supervisorMem[SS]);
+		int sp = convHexStrToInt(supervisorMem[SP]);
+		int r = convHexStrToInt(supervisorMem[R]);
 		
 		String command = memory[cs*256 + ic];
-		
-		//System.out.println(command);
-		
 		
 		if(command.substring(0, 3).equals("ADD")) {
 			
@@ -139,7 +132,7 @@ public class Proc {
 			memory[ss*256 + sp] = convIntToHexStr(sum,8);
 			
 			ic++;
-			memory[IC] = convIntToHexStr(ic, 8);
+			supervisorMem[IC] = convIntToHexStr(ic, 8);
 			
 		} else if(command.substring(0, 3).equals("SUB")) {
 			
@@ -147,7 +140,7 @@ public class Proc {
 			memory[ss*256 + sp] = convIntToHexStr(sub,8);
 			
 			ic++;
-			memory[IC] = convIntToHexStr(ic, 8);
+			supervisorMem[IC] = convIntToHexStr(ic, 8);
 			
 		} else if(command.substring(0, 3).equals("DIV")) {
 			
@@ -155,7 +148,7 @@ public class Proc {
 			memory[ss*256 + sp] = convIntToHexStr(div,8);
 			
 			ic++;
-			memory[IC] = convIntToHexStr(ic, 8);
+			supervisorMem[IC] = convIntToHexStr(ic, 8);
 			
 		} else if(command.substring(0, 3).equals("MUL")) {
 			
@@ -163,51 +156,51 @@ public class Proc {
 			memory[ss*256 + sp] = convIntToHexStr(mul,8);
 			
 			ic++;
-			memory[IC] = convIntToHexStr(ic, 8);
+			supervisorMem[IC] = convIntToHexStr(ic, 8);
 			
 		} else if(command.substring(0, 2).equals("KR")) {
 				
 			int address = convHexStrToInt(command.substring(2,8));
 			int temp = convHexStrToInt(memory[ds*256 + address]);
-			memory[R] = convIntToHexStr(temp,8);
+			supervisorMem[R] = convIntToHexStr(temp,8);
 			
 			ic++;
-			memory[IC] = convIntToHexStr(ic, 8);
+			supervisorMem[IC] = convIntToHexStr(ic, 8);
 			
 		} else if(command.substring(0, 2).equals("SR")) {
 			
 			int address = convHexStrToInt(command.substring(2,8));
-			int temp = convHexStrToInt(memory[R]);
+			int temp = convHexStrToInt(supervisorMem[R]);
 			memory[ds*256 + address] = convIntToHexStr(temp,8);
 			
 			ic++;
-			memory[IC] = convIntToHexStr(ic, 8);
+			supervisorMem[IC] = convIntToHexStr(ic, 8);
 			
 		} else if(command.substring(0, 4).equals("PUSH")) {
 			
 			sp = sp - 1;
-			memory[SP] = convIntToHexStr(sp, 8);
+			supervisorMem[SP] = convIntToHexStr(sp, 8);
 			memory[ss*256 + sp] = convIntToHexStr(r, 8);	
 			
 			ic++;
-			memory[IC] = convIntToHexStr(ic, 8);
+			supervisorMem[IC] = convIntToHexStr(ic, 8);
 			
 		} else if(command.substring(0, 3).equals("POP")) {
 			
 			r = convHexStrToInt(memory[ss*256 + sp]);
-			memory[R] = convIntToHexStr(r, 8);
+			supervisorMem[R] = convIntToHexStr(r, 8);
 			sp = sp + 1;
-			memory[SP] = convIntToHexStr(sp, 8);
+			supervisorMem[SP] = convIntToHexStr(sp, 8);
 			
 			ic++;
-			memory[IC] = convIntToHexStr(ic, 8);
+			supervisorMem[IC] = convIntToHexStr(ic, 8);
 			
 		} else if(command.substring(0, 3).equals("CMP")) {
 			
 			
-			int tempR = convHexStrToInt(memory[R]);
+			int tempR = convHexStrToInt(supervisorMem[R]);
 			int tempStack = convHexStrToInt(memory[ss*256 + sp]);
-			int tempSF = convHexStrToInt(memory[SF]);
+			int tempSF = convHexStrToInt(supervisorMem[SF]);
 			
 			int result = tempR - tempStack;
 			
@@ -219,73 +212,70 @@ public class Proc {
 				tempSF = 0;
 			}
 			
-			memory[SF] = convIntToHexStr(tempSF,8);
+			supervisorMem[SF] = convIntToHexStr(tempSF,8);
 			
 			ic++;
-			memory[IC] = convIntToHexStr(ic, 8);
+			supervisorMem[IC] = convIntToHexStr(ic, 8);
 			
 		} else if(command.substring(0, 2).equals("PD")) {
 			
-			int temp = convHexStrToInt(memory[R]);
-			System.out.println(memory[R]);
+			int temp = convHexStrToInt(supervisorMem[R]);
+			System.out.println(supervisorMem[R]);
 			
 			ic++;
-			memory[IC] = convIntToHexStr(ic, 8);
+			supervisorMem[IC] = convIntToHexStr(ic, 8);
 			
 		} else if(command.substring(0, 2).equals("RD")) {
 			
 			int temp = convHexStrToInt(command.substring(2,8));	
-			memory[R] = convIntToHexStr(temp,8);	
-			//System.out.println(temp);
+			supervisorMem[R] = convIntToHexStr(temp,8);	
 			
 			ic++;
-			memory[IC] = convIntToHexStr(ic, 8);
+			supervisorMem[IC] = convIntToHexStr(ic, 8);
 	
 		} else if(command.substring(0, 2).equals("JM")) {
 			
 			int address = convHexStrToInt(command.substring(2,8));
-			memory[IC] = convIntToHexStr(address,8);
+			supervisorMem[IC] = convIntToHexStr(address,8);
 			
 		} else if(command.substring(0, 2).equals("JZ")) {
 			
 			int address = convHexStrToInt(command.substring(2,8));
-			int tempSF = convHexStrToInt(memory[SF]);
+			int tempSF = convHexStrToInt(supervisorMem[SF]);
 			
 			if(tempSF/10 == 1) {
-				memory[IC] = convIntToHexStr(address,8);
+				supervisorMem[IC] = convIntToHexStr(address,8);
 			}
 			
 		} else if(command.substring(0, 2).equals("JN")) {
 			
 			int address = convHexStrToInt(command.substring(2,8));
-			int tempSF = convHexStrToInt(memory[SF]);
+			int tempSF = convHexStrToInt(supervisorMem[SF]);
 			
 			if(tempSF/10 == 0) {
-				memory[IC] = convIntToHexStr(address,8);
+				supervisorMem[IC] = convIntToHexStr(address,8);
 			}
 			
 		} else if(command.substring(0, 2).equals("JB")) {
 			
 			int address = convHexStrToInt(command.substring(2,8));
-			int tempSF = convHexStrToInt(memory[SF]);
+			int tempSF = convHexStrToInt(supervisorMem[SF]);
 			
 			if((tempSF/10 == 0) && (tempSF%10 == 1)) {
-				memory[IC] = convIntToHexStr(address,8);
+				supervisorMem[IC] = convIntToHexStr(address,8);
 			}
 			
 			
 		} else if(command.substring(0, 2).equals("JA")) {
 			
 			int address = convHexStrToInt(command.substring(2,8));
-			int tempSF = convHexStrToInt(memory[SF]);
+			int tempSF = convHexStrToInt(supervisorMem[SF]);
 			
 			if((tempSF/10 == 0) && (tempSF%10 == 0)) {
-				memory[IC] = convIntToHexStr(address,8);
+				supervisorMem[IC] = convIntToHexStr(address,8);
 			}
 			
 		} 
-		
-		return memory;
 		
 	}
 	
