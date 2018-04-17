@@ -144,6 +144,7 @@ public class RMasina {
  * Paprastos komandos yra irasomos i atminti, bet nevykdant ju.
  * Komanda STEP ivykdo viena komanda adresu (CS*256 + IC)
  * Komanda RUN vykdo komandas is adreso (CS*256 + IC), iki pirmo sutikto HALT
+ * Komanda LOAD uz'loadina komandas is txt failo i atminti
  * Komanda BPRINT pavaizduoja CS atminties bloka, kur yra IC 		
  */
 		while(true) {
@@ -165,11 +166,15 @@ public class RMasina {
 				
 				proc.printMemBlock(vMemory, supervisorMem);
 				
+			}else if( ( command.length() > 4) && ( command.substring(0,4).equals("LOAD") ) ) {
+			
+				String programName = command.substring(4, command.length());
+				
+				icTemp = vm.load(vMemory, programName, supervisorMem, icTemp);
+			
 			} else {
 				
-				vm.komanda(proc, supervisorMem, icTemp, command);
-				
-				icTemp++;
+				icTemp = vm.komanda(supervisorMem, icTemp, command);
 				
 			}
 			
