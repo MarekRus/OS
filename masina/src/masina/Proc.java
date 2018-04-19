@@ -9,6 +9,7 @@ import java.util.ArrayList;
 public class Proc {
 
 	
+	
 	public static String convIntToHexStr(int x, int length) {
 		String word = Integer.toHexString(x);
 		while(word.length() < length) {
@@ -18,9 +19,11 @@ public class Proc {
 	}
 	
 	
+	
 	public static int convHexStrToInt(String word) {
 		return (int)Long.parseLong(word, 16);
 	}
+	
 	
 	
 	public static ArrayList<String> errorMessages;
@@ -59,6 +62,28 @@ public class Proc {
 	static final int TI = 11;
 	
 	
+	
+	public static void incrTimer(String[] supervisorMem, String[] memory) {
+		int ti = convHexStrToInt(supervisorMem[TI]);
+		ti++;
+		if(ti > 2) {
+			ti = 0;
+			test(supervisorMem, memory);
+		}
+		supervisorMem[TI] = convIntToHexStr(ti,8);
+	}
+	
+	
+	
+	public static void test(String[] supervisorMem, String[] memory) {
+		
+		printWord(memory, supervisorMem, 9);
+		
+		//System.out.println("Ivyko pertraukimas!!!");
+	}
+	
+	
+	
 	public static void printMemBlock(String[] memory, String[] supervisorMem) {
 		
 		int ic = convHexStrToInt(supervisorMem[IC]);
@@ -67,15 +92,74 @@ public class Proc {
 		int currentBlock = (ic / 255) + cs;	
 		
 		for(int i = 0; i < 32; i++) {
-			
 			for(int g = 0; g < 8; g++) {
 				System.out.print(memory[currentBlock*256 + i*8 + g] + " ");
 			}
 			System.out.println();
-			
 		}
-		
 	}
+	
+	
+	
+	public static void initDS(String[] memory, String[] supervisorMem) {
+		
+		int ds = convHexStrToInt(supervisorMem[DS]);
+		
+		memory[ds * 256] = "Welcome0";
+		memory[ds * 256 + 1] = "Iveskite";
+		memory[ds * 256 + 2] = " komanda";
+		memory[ds * 256 + 3] = "Programa";
+		memory[ds * 256 + 4] = " sekming";
+		memory[ds * 256 + 5] = "ai ikrau";
+		memory[ds * 256 + 6] = "ta000000";
+		memory[ds * 256 + 7] = "Rezultat";
+		memory[ds * 256 + 8] = "as: 0000";
+		memory[ds * 256 + 9] = "Ivyko pe";
+		memory[ds * 256 + 10] = "rtraukim";
+		memory[ds * 256 + 11] = "as!!!000";
+	}
+	
+	
+	
+	public static void printWord(String[] memory, String[] supervisorMem, int i) {
+		
+		int ds = convHexStrToInt(supervisorMem[DS]);
+		
+		if(i == 0) {
+			System.out.println(memory[ds * 256].substring(0, 7));
+		} else if(i == 1) {
+			System.out.print(memory[ds * 256 + 1]);
+			System.out.println(memory[ds * 256 + 2]);
+		} else if(i == 3) {
+			System.out.print(memory[ds * 256 + 3]);
+			System.out.print(memory[ds * 256 + 4]);
+			System.out.print(memory[ds * 256 + 5]);
+			System.out.println(memory[ds * 256 + 6].substring(0, 2));
+		} else if(i == 7) {
+			System.out.print(memory[ds * 256 + 7]);
+			System.out.println(memory[ds * 256 + 8].substring(0, 4));
+		} else if(i == 9) {
+			System.out.print(memory[ds * 256 + 9]);
+			System.out.print(memory[ds * 256 + 10]);
+			System.out.println(memory[ds * 256 + 11].substring(0, 5));
+		}
+	}
+	
+	
+	
+	public static void printDSBlock(String[] memory, String[] supervisorMem, int blockNr) {
+		
+		int ds = convHexStrToInt(supervisorMem[DS]);	
+		int currentBlock = ds;	
+		
+		for(int i = 0; i < 32; i++) {	
+			for(int g = 0; g < 8; g++) {
+				System.out.print(memory[currentBlock*256 + i*8 + g] + " ");
+			}
+			System.out.println();	
+		}	
+	}
+	
 	
 	
 	public static void printInfo(String[] memory, String[] supervisorMem) {
@@ -83,17 +167,18 @@ public class Proc {
 		int ic = convHexStrToInt(supervisorMem[IC]);
 		int cs = convHexStrToInt(supervisorMem[CS]);
 		
-		System.out.println("------------------------------------------------");
-		
+		System.out.println("-------------------------------------------------------------------------");
+		System.out.print("IC: " + supervisorMem[IC] + " | " + "R: " + supervisorMem[R] + " | " + "PTR: " + supervisorMem[PTR] + " | " + "SP: " + supervisorMem[SP] 
+				+ " | " + "TI: " + supervisorMem[TI]);
+		System.out.println();
 		System.out.print("Dabartine komanda: ");
 		System.out.print(memory[cs*256 + ic]);
 		System.out.print(" Sekanti komanda: ");
 		System.out.println(memory[cs*256 + ic + 1]);
 		
-		System.out.println("------------------------------------------------");
-		
-		
+		System.out.println("-------------------------------------------------------------------------");
 	}
+	
 	
 	
 	public static void run(String[] memory, String[] supervisorMem) {
@@ -111,10 +196,7 @@ public class Proc {
 		
 		ic = convHexStrToInt(supervisorMem[IC]) + 1;
 		supervisorMem[IC] = convIntToHexStr(ic,8);
-		
 	}
-	
-	
 	
 	
 	
@@ -134,6 +216,8 @@ public class Proc {
 			int sum = convHexStrToInt(memory[ss*256 + sp]) + convHexStrToInt(memory[ss*256 + sp + 1]);
 			memory[ss*256 + sp] = convIntToHexStr(sum,8);
 			
+			incrTimer(supervisorMem, memory);
+			
 			ic++;
 			supervisorMem[IC] = convIntToHexStr(ic, 8);
 			
@@ -141,6 +225,8 @@ public class Proc {
 			
 			int sub = convHexStrToInt(memory[ss*256 + sp + 1]) - convHexStrToInt(memory[ss*256 + sp]);
 			memory[ss*256 + sp] = convIntToHexStr(sub,8);
+			
+			incrTimer(supervisorMem, memory);
 			
 			ic++;
 			supervisorMem[IC] = convIntToHexStr(ic, 8);
@@ -150,6 +236,8 @@ public class Proc {
 			int div = convHexStrToInt(memory[ss*256 + sp + 1]) / convHexStrToInt(memory[ss*256 + sp]);
 			memory[ss*256 + sp] = convIntToHexStr(div,8);
 			
+			incrTimer(supervisorMem, memory);
+			
 			ic++;
 			supervisorMem[IC] = convIntToHexStr(ic, 8);
 			
@@ -157,6 +245,8 @@ public class Proc {
 			
 			int mul = convHexStrToInt(memory[ss*256 + sp + 1]) * convHexStrToInt(memory[ss*256 + sp]);
 			memory[ss*256 + sp] = convIntToHexStr(mul,8);
+			
+			incrTimer(supervisorMem, memory);
 			
 			ic++;
 			supervisorMem[IC] = convIntToHexStr(ic, 8);
@@ -167,6 +257,8 @@ public class Proc {
 			int temp = convHexStrToInt(memory[ds*256 + address]);
 			supervisorMem[R] = convIntToHexStr(temp,8);
 			
+			incrTimer(supervisorMem, memory);
+			
 			ic++;
 			supervisorMem[IC] = convIntToHexStr(ic, 8);
 			
@@ -175,6 +267,8 @@ public class Proc {
 			int address = convHexStrToInt(command.substring(2,8));
 			int temp = convHexStrToInt(supervisorMem[R]);
 			memory[ds*256 + address] = convIntToHexStr(temp,8);
+			
+			incrTimer(supervisorMem, memory);
 			
 			ic++;
 			supervisorMem[IC] = convIntToHexStr(ic, 8);
@@ -185,6 +279,8 @@ public class Proc {
 			supervisorMem[SP] = convIntToHexStr(sp, 8);
 			memory[ss*256 + sp] = convIntToHexStr(r, 8);	
 			
+			incrTimer(supervisorMem, memory);
+			
 			ic++;
 			supervisorMem[IC] = convIntToHexStr(ic, 8);
 			
@@ -194,6 +290,8 @@ public class Proc {
 			supervisorMem[R] = convIntToHexStr(r, 8);
 			sp = sp + 1;
 			supervisorMem[SP] = convIntToHexStr(sp, 8);
+			
+			incrTimer(supervisorMem, memory);
 			
 			ic++;
 			supervisorMem[IC] = convIntToHexStr(ic, 8);
@@ -217,13 +315,20 @@ public class Proc {
 			
 			supervisorMem[SF] = convIntToHexStr(tempSF,8);
 			
+			incrTimer(supervisorMem, memory);
+			
 			ic++;
 			supervisorMem[IC] = convIntToHexStr(ic, 8);
 			
 		} else if(command.substring(0, 2).equals("PD")) {
 			
 			int temp = convHexStrToInt(supervisorMem[R]);
+			
+			Proc.printWord(memory, supervisorMem, 7);
+			
 			System.out.println(supervisorMem[R]);
+			
+			incrTimer(supervisorMem, memory);
 			
 			ic++;
 			supervisorMem[IC] = convIntToHexStr(ic, 8);
@@ -233,6 +338,8 @@ public class Proc {
 			int temp = convHexStrToInt(command.substring(2,8));	
 			supervisorMem[R] = convIntToHexStr(temp,8);	
 			
+			incrTimer(supervisorMem, memory);
+			
 			ic++;
 			supervisorMem[IC] = convIntToHexStr(ic, 8);
 	
@@ -240,6 +347,8 @@ public class Proc {
 			
 			int address = convHexStrToInt(command.substring(2,8));
 			supervisorMem[IC] = convIntToHexStr(address,8);
+			
+			incrTimer(supervisorMem, memory);
 			
 		} else if(command.substring(0, 2).equals("JZ")) {
 			
@@ -250,6 +359,8 @@ public class Proc {
 				supervisorMem[IC] = convIntToHexStr(address,8);
 			}
 			
+			incrTimer(supervisorMem, memory);
+			
 		} else if(command.substring(0, 2).equals("JN")) {
 			
 			int address = convHexStrToInt(command.substring(2,8));
@@ -258,6 +369,8 @@ public class Proc {
 			if(tempSF/10 == 0) {
 				supervisorMem[IC] = convIntToHexStr(address,8);
 			}
+			
+			incrTimer(supervisorMem, memory);
 			
 		} else if(command.substring(0, 2).equals("JB")) {
 			
@@ -268,6 +381,7 @@ public class Proc {
 				supervisorMem[IC] = convIntToHexStr(address,8);
 			}
 			
+			incrTimer(supervisorMem, memory);
 			
 		} else if(command.substring(0, 2).equals("JA")) {
 			
@@ -278,17 +392,13 @@ public class Proc {
 				supervisorMem[IC] = convIntToHexStr(address,8);
 			}
 			
-		} 
+			incrTimer(supervisorMem, memory);
+			
+		} else if(command.substring(0, 4).equals("HALT")) {
+			ic++;
+			supervisorMem[IC] = convIntToHexStr(ic, 8);
+		}
 		
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 }

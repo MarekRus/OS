@@ -6,6 +6,8 @@ import java.util.Scanner;
 
 public class RMasina {
 	
+	
+	
 	public static int convHexStrToInt(String word) {
 		return (int)Long.parseLong(word, 16);
 	}
@@ -111,7 +113,7 @@ public class RMasina {
 		supervisorMem[10] = "00000000";
 		supervisorMem[11] = "00000000";
 		
-		//System.out.println(ptr);
+
 		
 		//Puslapiavimas
 		//for(int i = 0; i < 256; i++) {
@@ -130,14 +132,13 @@ public class RMasina {
 		
 		
 		
-/*		
-		for(int i = 0; i < 32; i++) {
-			for(int g = 0; g < 8; g++) {
-				System.out.print(memory[1*256 + i*8 + g] + " ");
-			}
-			System.out.println();
-		}
-*/		
+/*
+ * I duomenu segmenta yra irasomi zodziai		
+ */
+		proc.initDS(vMemory, supervisorMem);
+		proc.printWord(vMemory, supervisorMem, 0);
+		
+		
 		
 		
 /*
@@ -148,6 +149,8 @@ public class RMasina {
  * Komanda BPRINT pavaizduoja CS atminties bloka, kur yra IC 		
  */
 		while(true) {
+			
+			proc.printWord(vMemory, supervisorMem, 1);
 			
 			String command = s.nextLine();
 			
@@ -166,11 +169,17 @@ public class RMasina {
 				
 				proc.printMemBlock(vMemory, supervisorMem);
 				
+			}else if( (command.length() > 6) && ( command.substring(0, 7).equals("DSPRINT") ) ) {
+			
+				proc.printDSBlock(vMemory, supervisorMem, 0);
+				
 			}else if( ( command.length() > 4) && ( command.substring(0,4).equals("LOAD") ) ) {
 			
 				String programName = command.substring(4, command.length());
 				
 				icTemp = vm.load(vMemory, programName, supervisorMem, icTemp);
+				
+				proc.printWord(vMemory, supervisorMem, 3);
 			
 			} else {
 				

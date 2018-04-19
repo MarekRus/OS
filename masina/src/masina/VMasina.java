@@ -6,7 +6,10 @@ import java.io.IOException;
 
 public class VMasina {
 
+	
+	
 	public static  String[] memory;
+	
 	
 	
 	public static String convIntToHexStr(int x, int length) {
@@ -32,6 +35,7 @@ public class VMasina {
 		}
 		
 	}
+	
 	
 	
 	public static int komanda(String[] supervisorMem, int icTemp, String command) {
@@ -172,7 +176,6 @@ public class VMasina {
 		}
 
 		return icTemp;
-	
 	}
 	
 	
